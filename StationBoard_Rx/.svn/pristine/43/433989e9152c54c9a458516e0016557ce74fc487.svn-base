@@ -1,0 +1,131 @@
+/*** StationBoard - Command module implementation
+  ** Warthog Robotics
+  ** University of Sao Paulo at Sao Carlos
+  ** http://www.warthog.sc.usp.br
+  ** This file is part of the Warthog Robotics Station project
+  ***/
+
+
+/* Includes StationBoard */
+#include <StationBoard/stationboard.h>
+
+/* Includes module private header */
+#include <StationBoard/Telemetry/telemetry_private.h>
+
+/* Includes dsPIC libraries */
+#include <p33Fxxxx.h>
+
+/* Includes C standard libraries */
+#include <stdlib.h>
+#include <string.h>
+
+/* Includes nRF24L01 library */
+#include <nRF24L01/nrf24l01.h>
+
+
+/* Module internal variables */
+uint8  telemetry_channel;
+uint8  telemetry_addressSize;
+uint8* telemetry_address = 0;
+uint8  telemetry_buffer[TELEMETRY_PROTOCOL_SIZE];
+
+void telemetry_initialize() {
+    /* Initializes the radio */
+    telemetry_initializeRadio();
+    
+    uint8 stationAddress[] = {TELEMETRY_STATION_ADDRESS};
+    telemetry_setAddress(5, stationAddress);
+    
+    telemetry_setChannel(TELEMETRY_CHANNEL_B); /* Channel B - Command input alternative channel */
+    
+    TRISBbits.TRISB3 = 1; //IRQ do radio
+}
+
+
+void telemetry_initializeRadio() {
+    int i;
+    for(i=0;i<TELEMETRY_PROTOCOL_SIZE;i++){
+        telemetry_buffer[i] = 0;
+    }
+    
+    /* Configures the radio operation mode
+       Refer to "nRF24L01/nRF24L01.h" for further information */
+    nRF24_init(0);
+
+    nRF24_setDataRate(TELEMETRY_RADIO_NUMBER, 0);
+    
+    nRF24_enableRxPipe(TELEMETRY_RADIO_NUMBER, 0, 1);
+    nRF24_enableRxPipe(TELEMETRY_RADIO_NUMBER, 1, 1);
+    nRF24_setRxPayloadSize(TELEMETRY_RADIO_NUMBER, 0, TELEMETRY_PROTOCOL_SIZE);
+    nRF24_setRxPayloadSize(TELEMETRY_RADIO_NUMBER, 1, TELEMETRY_PROTOCOL_SIZE);
+
+    nRF24_enableAutoAck(TELEMETRY_RADIO_NUMBER, 0, 0);
+    nRF24_enableAutoAck(TELEMETRY_RADIO_NUMBER, 1, 0);
+
+    nRF24_enableDSInt(TELEMETRY_RADIO_NUMBER, 0);
+    nRF24_enableMaxRTInt(TELEMETRY_RADIO_NUMBER, 0);
+
+    nRF24_setRx(TELEMETRY_RADIO_NUMBER);
+}
+
+
+void telemetry_start() {
+    nRF24_powerUp(TELEMETRY_RADIO_NUMBER);
+    
+    /* Enables radio */
+    nRF24_setRxActive(TELEMETRY_RADIO_NUMBER);
+}
+
+
+void telemetry_setChannel(uint8 channel) {
+    /* Sets the radio channel */
+    telemetry_channel = channel;
+
+    /* Configures the radio */
+    nRF24_setChannel(0, telemetry_channel); // TODO: Verificar se pode trocar com o radio funcionando
+}
+
+void telemetry_setAddress(uint8 size, uint8* address) {
+    /* Sets the address size */
+    telemetry_addressSize = size;
+
+    /* Sets the radio address */
+    telemetry_address = (uint8*) realloc(telemetry_address, size*sizeof(uint8));
+    memcpy((void*) telemetry_address, (void*) address, size);
+
+    /* Configures the radio */
+    nRF24_setAddressSize(0, telemetry_addressSize-2);
+    nRF24_setRxAddress(0, 1, telemetry_address); // TODO: Verificar se pode trocar com o radio funcionando
+}
+
+
+void telemetry_sendPayload(uint8* playerAddress, uint8 payloadSize, uint8* payload) {
+    /* Sends the payload */
+    nRF24_sendPayload(0, playerAddress, payload, payloadSize, 0); // TODO: Organizar para trabalhar com ACK
+}
+
+uint16 teste = 0;
+
+void telemetry_taskHandler() {
+    /* Variables */
+    uint8 nBytes;
+
+    /* Receives the new packet */
+    if (PORTBbits.RB3 == 0) { // IRQ do radio
+        teste = 5;
+        /* Gets data */
+        nRF24_getReceivedPayload(TELEMETRY_RADIO_NUMBER, telemetry_buffer, &nBytes);
+        
+//        serialInterface_sendData(strlen(telemetry_buffer), telemetry_buffer);
+
+//        /* Decodes the telemetry */
+//        telemetry_decodeCommand(&telemetry_data);
+//
+//        /* Stores telemetry information */
+//        telemetry_lastNonce = telemetry_data.nonce;
+//        telemetry_lastNonceTime = currentTime;
+//
+//        /* Executes the telemetry */
+//        telemetry_executeCommands(&telemetry_data);
+    }
+}
