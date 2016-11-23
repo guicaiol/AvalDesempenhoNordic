@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/home/nunobarcellos/warthog/warthog-dc/Telemetria/firmware/branches/StationBoard_Rx/src/StationBoard/Telemetry/telemetry.c</file>
+            <file>file:/home/nunobarcellos/warthog/warthog-dc/Telemetria/firmware/branches/StationBoard_Rx/include/StationBoard/Telemetry/telemetry.h</file>
+            <file>file:/home/nunobarcellos/warthog/warthog-dc/Telemetria/firmware/branches/StationBoard_Rx/3rdparty/nRF24L01/nrf24l01.c</file>
+            <file>file:/home/nunobarcellos/warthog/warthog-dc/Telemetria/firmware/branches/StationBoard_Rx/src/StationBoard/Command/command.c</file>
+            <file>file:/home/nunobarcellos/warthog/warthog-dc/Telemetria/firmware/branches/StationBoard_Rx/src/StationBoard/SerialInterface/serialinterface.c</file>
+        </group>
+    </open-files>
+</project-private>
