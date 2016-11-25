@@ -1,80 +1,86 @@
 #include <QCoreApplication>
 #include <QtSerialPort/QtSerialPort>
+#include <iostream>
 #include <cstdlib>
 #include <ctime>
 #include <limits.h>
 
-#define BAUDRATE 1000000
-#define PKGNUNBER 1000
-#define MAXRAND INT_MAX
+#define SERIALPORT_BAUDRATE 1000000
+#define PKT_NUMBER 1000
 
+// Packet definition
 typedef struct{
     int id;
     QList<int> data;
-}package;
+} Packet;
 
-int main(int argc, char *argv[])
-{
-    if (argc == 0) {exit(0);}
+int main(int argc, char *argv[]) {
+    QCoreApplication app(argc, argv);
 
-    const QString& portNameTx = argv[1];
-    const QString& portNameRx = argv[2];
-    const int rate = argv[3];
-    const int length = argv[4];
+    // Check arguments
+    if(argc <= 1) {
+        std::cout << "Usage: ./StationTester txPortName rxPortName txRate pktSize\n";
+        return EXIT_FAILURE;
+    }
 
-    QCoreApplication a(argc, argv);
-    QSerialPort serialPortTx;
-    QSerialPort serialPortRx;
+    // Parse arguments
+    const QString txPortName(argv[1]);
+    const QString rxPortName(argv[2]);
+    const int txRate = atoi(argv[3]);
+    const int pktSize = atoi(argv[4]);
 
-    //Sets the BaudRate
-    serialPortTx.setBaudRate(BAUDRATE);
-    serialPortTx.setParity(QSerialPort::NoParity);
-    serialPortTx.setStopBits(QSerialPort::OneStop);
-    serialPortTx.setFlowControl(QSerialPort::NoFlowControl);
-    serialPortTx.setDataBits(QSerialPort::Data5);
+    // Create serial ports
+    QSerialPort tx, rx;
 
-    serialPortRx.setBaudRate(BAUDRATE);
-    serialPortRx.setParity(QSerialPort::NoParity);
-    serialPortRx.setStopBits(QSerialPort::OneStop);
-    serialPortRx.setFlowControl(QSerialPort::NoFlowControl);
-    serialPortRx.setDataBits(QSerialPort::Data5);
+    // Config TX
+    tx.setPortName(txPortName);
+    tx.setBaudRate(SERIALPORT_BAUDRATE);
+    tx.setParity(QSerialPort::NoParity);
+    tx.setStopBits(QSerialPort::OneStop);
+    tx.setFlowControl(QSerialPort::NoFlowControl);
+    tx.setDataBits(QSerialPort::Data8);
 
-    // Opens the Tx port in ReadWrite mode
-    serialPortTx.setPortName(portNameTx);
-    bool ok = serialPortTx.open(QIODevice::ReadWrite);
-    if(!ok){cout << "Pau na abertura da porta serial\n"; exit(0);}
+    // Config RX
+    rx.setPortName(rxPortName);
+    rx.setBaudRate(SERIALPORT_BAUDRATE);
+    rx.setParity(QSerialPort::NoParity);
+    rx.setStopBits(QSerialPort::OneStop);
+    rx.setFlowControl(QSerialPort::NoFlowControl);
+    rx.setDataBits(QSerialPort::Data8);
 
-    // Opens the Rx port in ReadWrite mode
-    serialPortRx.setPortName(portNameRx);
-    ok = serialPortRx.open(QIODevice::ReadWrite);
-    if(!ok){cout << "Pau na abertura da porta serial\n"; exit(0);}
+    // Open TX
+    if(tx.open(QIODevice::ReadWrite) == false) {
+        std::cout << "[ERROR] Failed to open TX on " << txPortName.toStdString() << ".\n";
+        return EXIT_FAILURE;
+    }
 
-    // Random Seed
-    srand(time(NULL));
-
+    // Open RX
+    if(rx.open(QIODevice::ReadWrite) == false) {
+        std::cout << "[ERROR] Failed to open RX on " << txPortName.toStdString() << ".\n";
+        return EXIT_FAILURE;
+    }
 
     // Creates the package data list
-    QList<package> packList;
+    QList<Packet> packList;
 
     // Package Generation
-    for(int i=0; i<PKGNUNBER; i++)
-    {
-        package aux;
+    srand(time(NULL));
+    for(int i=0; i<PKT_NUMBER; i++) {
+        Packet aux;
         aux.id = i;
-        for(int j=0; j<length/sizeof(int); j++)
-        {
-            int info = rand()%MAXRAND;
+        for(int j=0; j<pktSize/sizeof(int); j++) {
+            int info = rand()%INT_MAX;
             aux.data.append(info);
         }
         packList.append(aux);
     }
 
     // Sending
-    for(int i=0; i<PKGNUNBER; i++)
+    for(int i=0; i<PKT_NUMBER; i++)
     {
 
     }
 
 
-    return a.exec();
+    return app.exec();
 }
