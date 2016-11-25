@@ -32,7 +32,7 @@ public:
 
 private:
     // Station abstract implementation run implementation
-    void loop();
+    void worker();
 };
 
 #endif // RXSTATION_HH

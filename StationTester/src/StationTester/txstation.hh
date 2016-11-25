@@ -30,9 +30,18 @@ class TXStation : public Station {
 public:
     TXStation(QString portName, int baudRate);
 
+    // TX rate
+    void setTXrate(unsigned txRate) { _txRate = txRate; }
+
+protected:
+    unsigned txRate() const { return _txRate; }
+
 private:
     // Station abstract implementation run implementation
-    void loop();
+    void worker();
+
+    // Packet control
+    unsigned _txRate;
 };
 
 #endif // TXSTATION_HH

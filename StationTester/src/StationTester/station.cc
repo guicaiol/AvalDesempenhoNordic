@@ -32,22 +32,11 @@ Station::Station(QString portName, int baudRate) {
     _port.setStopBits(QSerialPort::OneStop);
     _port.setFlowControl(QSerialPort::NoFlowControl);
     _port.setDataBits(QSerialPort::Data8);
-
-    // Initialization
-    _running = true;
-    _loopTime = 10; // ms
 }
 
 void Station::run() {
     initialization();
-
-    while(_running) {
-        loop();
-
-        // Loop time control
-        msleep(_loopTime);
-    }
-
+    worker();
     finalization();
 }
 

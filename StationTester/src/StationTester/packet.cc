@@ -21,39 +21,5 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "txstation.hh"
-#include <iostream>
-#include <StationTester/packet.hh>
+#include "packet.hh"
 
-TXStation::TXStation(QString portName, int baudRate) : Station(portName, baudRate) {
-
-}
-
-void TXStation::worker() {
-    // Creates the package data list
-    QList<Packet> packetList;
-
-    // Packet generation
-    srand(time(NULL));
-    for(int i=0; i<numPackets(); i++) {
-        Packet aux;
-
-        // Set id
-        aux.id = i+1;
-
-        // Generate other random data
-        int numData = (int)(packetSize()/dataSize()) - 1;
-        for(int j=0; j<numData; j++) {
-            int data = (rand()%INT_MAX);
-            aux.data.append(data);
-        }
-
-        // Append packet
-        packetList.append(aux);
-    }
-
-    // Sending
-    for(int i=0; i<numPackets(); i++) {
-
-    }
-}

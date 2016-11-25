@@ -28,6 +28,6 @@ RXStation::RXStation(QString portName, int baudRate) : Station(portName, baudRat
 
 }
 
-void RXStation::loop() {
-    std::cout << "RXStation::loop()";
+void RXStation::worker() {
+    std::cout << "RXStation::worker()\n";
 }

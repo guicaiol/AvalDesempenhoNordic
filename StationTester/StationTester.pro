@@ -53,13 +53,15 @@ SOURCES += \
     src/main.cc \
     src/StationTester/rxstation.cc \
     src/StationTester/station.cc \
-    src/StationTester/txstation.cc
+    src/StationTester/txstation.cc \
+    src/StationTester/packet.cc
 
 # Header files
 HEADERS += \
     src/StationTester/rxstation.hh \
     src/StationTester/station.hh \
-    src/StationTester/txstation.hh
+    src/StationTester/txstation.hh \
+    src/StationTester/packet.hh
 
 # Other files
 DISTFILES += \

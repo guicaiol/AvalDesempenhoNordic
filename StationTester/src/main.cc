@@ -8,18 +8,10 @@
 #include <StationTester/txstation.hh>
 
 #define SERIALPORT_BAUDRATE 1000000
-#define PKT_NUMBER 1000
+#define NUM_PACKETS 1000
 #define DATA_SIZE 4
 
-// Packet definition
-typedef struct{
-    int id;
-    QList<int> data;
-} Packet;
-
 int main(int argc, char *argv[]) {
-    QCoreApplication app(argc, argv);
-
     // Check arguments
     if(argc <= 1) {
         std::cout << "Usage: ./StationTester txPortName rxPortName txRate pktSize\n";
@@ -38,34 +30,23 @@ int main(int argc, char *argv[]) {
 
     // Create stations
     TXStation tx(txPortName, SERIALPORT_BAUDRATE);
+    tx.setNumPackets(NUM_PACKETS);
+    tx.setPacketSize(pktSize);
+    tx.setDataSize(DATA_SIZE);
+    tx.setTXrate(txRate);
+
     RXStation rx(rxPortName, SERIALPORT_BAUDRATE);
+    rx.setNumPackets(NUM_PACKETS);
+    rx.setPacketSize(pktSize);
+    rx.setDataSize(DATA_SIZE);
 
-    // Creates the package data list
-    QList<Packet> packetList;
+    // Start stations
+    tx.start();
+    rx.start();
 
-    // Packet generation
-    srand(time(NULL));
-    for(int i=0; i<PKT_NUMBER; i++) {
-        Packet aux;
+    // Wait stations to finish jobs
+    tx.wait();
+    rx.wait();
 
-        // Set id
-        aux.id = i+1;
-
-        // Generate other random data
-        int numPackets = (int)(pktSize/DATA_SIZE) - 1;
-        for(int j=0; j<numPackets; j++) {
-            int data = (rand()%INT_MAX);
-            aux.data.append(data);
-        }
-
-        // Append packet
-        packetList.append(aux);
-    }
-
-    // Sending
-    for(int i=0; i<PKT_NUMBER; i++) {
-
-    }
-
-    return app.exec();
+    return 0;
 }

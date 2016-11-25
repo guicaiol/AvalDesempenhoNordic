@@ -31,23 +31,30 @@ class Station : public QThread {
 public:
     Station(QString portName, int baudRate);
 
-    // Loop control
-    void setRunning(bool running) { _running = running; }
-    void setLoopTime(unsigned loopTime) { _loopTime = loopTime; }
+    // Packet control
+    void setNumPackets(unsigned numPackets) { _numPackets = numPackets; }
+    void setPacketSize(unsigned packetSize) { _packetSize = packetSize; }
+    void setDataSize(unsigned dataSize) { _dataSize = dataSize; }
+
+protected:
+    unsigned numPackets() const { return _numPackets; }
+    unsigned packetSize() const { return _packetSize; }
+    unsigned dataSize() const { return _dataSize; }
 
 private:
     // Serial port
     QSerialPort _port;
 
-    // Loop control
-    bool _running;
-    unsigned _loopTime;
+    // Packet control
+    unsigned _numPackets;
+    unsigned _packetSize;
+    unsigned _dataSize;
 
     // Thread run implementation
     void run();
 
     // Abstract methods
-    virtual void loop() = 0;
+    virtual void worker() = 0;
 
     // Internal methods
     void initialization();
