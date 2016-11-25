@@ -33,6 +33,7 @@ public:
 private:
     // Station abstract implementation run implementation
     void worker();
+    QString name();
 };
 
 #endif // RXSTATION_HH

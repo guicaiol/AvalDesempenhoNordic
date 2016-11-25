@@ -24,6 +24,10 @@
 #include "rxstation.hh"
 #include <iostream>
 
+QString RXStation::name() {
+    return "RXStation";
+}
+
 RXStation::RXStation(QString portName, int baudRate) : Station(portName, baudRate) {
 
 }

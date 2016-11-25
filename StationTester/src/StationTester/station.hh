@@ -37,6 +37,7 @@ public:
     void setDataSize(unsigned dataSize) { _dataSize = dataSize; }
 
 protected:
+    QSerialPort *port() { return &_port; }
     unsigned numPackets() const { return _numPackets; }
     unsigned packetSize() const { return _packetSize; }
     unsigned dataSize() const { return _dataSize; }
@@ -55,9 +56,10 @@ private:
 
     // Abstract methods
     virtual void worker() = 0;
+    virtual QString name() = 0;
 
     // Internal methods
-    void initialization();
+    bool initialization();
     void finalization();
 };
 

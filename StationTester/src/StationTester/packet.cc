@@ -23,3 +23,18 @@
 
 #include "packet.hh"
 
+Packet::Packet(unsigned id) : _id(id) {
+
+}
+
+void Packet::addData(int data) {
+    _data.append(data);
+}
+
+void Packet::toBuffer(QByteArray *buffer) {
+
+}
+
+void Packet::fromBuffer(QByteArray *buffer) {
+
+}

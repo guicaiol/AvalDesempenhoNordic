@@ -35,17 +35,20 @@ Station::Station(QString portName, int baudRate) {
 }
 
 void Station::run() {
-    initialization();
+    if(initialization()==false)
+        return;
     worker();
     finalization();
 }
 
-void Station::initialization() {
+bool Station::initialization() {
     // Open serial port
     if(_port.open(QIODevice::ReadWrite) == false) {
-        std::cout << "[ERROR] Failed to start Station on " << _port.portName().toStdString() << ".\n";
-        exit(EXIT_FAILURE);
+        std::cout << "[ERROR] Failed to start " << name().toStdString() << " on " << _port.portName().toStdString() << ".\n";
+        return false;
     }
+
+    return true;
 }
 
 void Station::finalization() {

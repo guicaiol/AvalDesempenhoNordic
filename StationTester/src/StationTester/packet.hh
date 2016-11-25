@@ -26,10 +26,23 @@
 
 #include <QList>
 
-// Packet definition
-typedef struct{
-    int id;
-    QList<int> data;
-} Packet;
+class Packet {
+public:
+    Packet(unsigned id);
+
+    // Data management
+    void addData(int data);
+
+    // Serialization
+    void toBuffer(QByteArray *buffer);
+    void fromBuffer(QByteArray *buffer);
+
+private:
+    // ID
+    const int _id;
+
+    // Data
+    QList<int> _data;
+};
 
 #endif // PACKET_HH

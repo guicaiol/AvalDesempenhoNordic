@@ -33,12 +33,10 @@ public:
     // TX rate
     void setTXrate(unsigned txRate) { _txRate = txRate; }
 
-protected:
-    unsigned txRate() const { return _txRate; }
-
 private:
     // Station abstract implementation run implementation
     void worker();
+    QString name();
 
     // Packet control
     unsigned _txRate;

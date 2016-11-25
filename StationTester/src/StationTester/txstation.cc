@@ -25,6 +25,10 @@
 #include <iostream>
 #include <StationTester/packet.hh>
 
+QString TXStation::name() {
+    return "TXStation";
+}
+
 TXStation::TXStation(QString portName, int baudRate) : Station(portName, baudRate) {
 
 }
@@ -36,24 +40,31 @@ void TXStation::worker() {
     // Packet generation
     srand(time(NULL));
     for(unsigned i=0; i<numPackets(); i++) {
-        Packet aux;
+        Packet packet(i+1);
 
-        // Set id
-        aux.id = i+1;
-
-        // Generate other random data
+        // Generate random data
         int numData = (int)(packetSize()/dataSize()) - 1;
         for(int j=0; j<numData; j++) {
             int data = (rand()%INT_MAX);
-            aux.data.append(data);
+            packet.addData(data);
         }
 
         // Append packet
-        packetList.append(aux);
+        packetList.append(packet);
     }
 
     // Sending
+    QByteArray buffer;
     for(unsigned i=0; i<numPackets(); i++) {
+        Packet packet = packetList.at(i);
 
+        // Serialize to buffer
+        packet.toBuffer(&buffer);
+
+        // Write to serial port
+        port()->write(buffer);
+
+        // Sleep
+        QThread::msleep(1000/_txRate);
     }
 }
