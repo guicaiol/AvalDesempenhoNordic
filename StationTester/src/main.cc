@@ -1,9 +1,11 @@
 #include <QCoreApplication>
-#include <QtSerialPort/QtSerialPort>
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
 #include <limits.h>
+
+#include <StationTester/rxstation.hh>
+#include <StationTester/txstation.hh>
 
 #define SERIALPORT_BAUDRATE 1000000
 #define PKT_NUMBER 1000
@@ -34,36 +36,9 @@ int main(int argc, char *argv[]) {
     std::cout << "TX serial port: " << txPortName.toStdString() << "\n";
     std::cout << "RX serial port: " << rxPortName.toStdString() << "\n";
 
-    // Create serial ports
-    QSerialPort tx, rx;
-
-    // Config TX
-    tx.setPortName(txPortName);
-    tx.setBaudRate(SERIALPORT_BAUDRATE);
-    tx.setParity(QSerialPort::NoParity);
-    tx.setStopBits(QSerialPort::OneStop);
-    tx.setFlowControl(QSerialPort::NoFlowControl);
-    tx.setDataBits(QSerialPort::Data8);
-
-    // Config RX
-    rx.setPortName(rxPortName);
-    rx.setBaudRate(SERIALPORT_BAUDRATE);
-    rx.setParity(QSerialPort::NoParity);
-    rx.setStopBits(QSerialPort::OneStop);
-    rx.setFlowControl(QSerialPort::NoFlowControl);
-    rx.setDataBits(QSerialPort::Data8);
-
-    // Open TX
-    if(tx.open(QIODevice::ReadWrite) == false) {
-        std::cout << "[ERROR] Failed to open TX on " << txPortName.toStdString() << ".\n";
-        return EXIT_FAILURE;
-    }
-
-    // Open RX
-    if(rx.open(QIODevice::ReadWrite) == false) {
-        std::cout << "[ERROR] Failed to open RX on " << rxPortName.toStdString() << ".\n";
-        return EXIT_FAILURE;
-    }
+    // Create stations
+    TXStation tx(txPortName, SERIALPORT_BAUDRATE);
+    RXStation rx(rxPortName, SERIALPORT_BAUDRATE);
 
     // Creates the package data list
     QList<Packet> packetList;
