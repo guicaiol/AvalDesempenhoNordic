@@ -7,6 +7,7 @@
 
 #define SERIALPORT_BAUDRATE 1000000
 #define PKT_NUMBER 1000
+#define DATA_SIZE 4
 
 // Packet definition
 typedef struct{
@@ -28,6 +29,10 @@ int main(int argc, char *argv[]) {
     const QString rxPortName(argv[2]);
     const int txRate = atoi(argv[3]);
     const int pktSize = atoi(argv[4]);
+
+    std::cout << "CONFIGURATION:\n";
+    std::cout << "TX serial port: " << txPortName.toStdString() << "\n";
+    std::cout << "RX serial port: " << rxPortName.toStdString() << "\n";
 
     // Create serial ports
     QSerialPort tx, rx;
@@ -56,31 +61,36 @@ int main(int argc, char *argv[]) {
 
     // Open RX
     if(rx.open(QIODevice::ReadWrite) == false) {
-        std::cout << "[ERROR] Failed to open RX on " << txPortName.toStdString() << ".\n";
+        std::cout << "[ERROR] Failed to open RX on " << rxPortName.toStdString() << ".\n";
         return EXIT_FAILURE;
     }
 
     // Creates the package data list
-    QList<Packet> packList;
+    QList<Packet> packetList;
 
-    // Package Generation
+    // Packet generation
     srand(time(NULL));
     for(int i=0; i<PKT_NUMBER; i++) {
         Packet aux;
-        aux.id = i;
-        for(int j=0; j<pktSize/sizeof(int); j++) {
-            int info = rand()%INT_MAX;
-            aux.data.append(info);
+
+        // Set id
+        aux.id = i+1;
+
+        // Generate other random data
+        int numPackets = (int)(pktSize/DATA_SIZE) - 1;
+        for(int j=0; j<numPackets; j++) {
+            int data = (rand()%INT_MAX);
+            aux.data.append(data);
         }
-        packList.append(aux);
+
+        // Append packet
+        packetList.append(aux);
     }
 
     // Sending
-    for(int i=0; i<PKT_NUMBER; i++)
-    {
+    for(int i=0; i<PKT_NUMBER; i++) {
 
     }
-
 
     return app.exec();
 }
