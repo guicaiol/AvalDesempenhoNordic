@@ -35,7 +35,7 @@ void TXStation::worker() {
 
     // Packet generation
     srand(time(NULL));
-    for(int i=0; i<numPackets(); i++) {
+    for(unsigned i=0; i<numPackets(); i++) {
         Packet aux;
 
         // Set id
@@ -53,7 +53,7 @@ void TXStation::worker() {
     }
 
     // Sending
-    for(int i=0; i<numPackets(); i++) {
+    for(unsigned i=0; i<numPackets(); i++) {
 
     }
 }

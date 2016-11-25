@@ -1,8 +1,5 @@
 #include <QCoreApplication>
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
-#include <limits.h>
 
 #include <StationTester/rxstation.hh>
 #include <StationTester/txstation.hh>
