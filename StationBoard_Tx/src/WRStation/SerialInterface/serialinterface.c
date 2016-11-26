@@ -18,7 +18,11 @@
 /* Includes C standard libraries */
 #include <stdlib.h>
 #include <string.h>
+#include <libpic30.h>
 
+
+#define PAYLOAD_SIZE 28
+uint8 DEST_STATION_ADDRESS[5] = {'W', 'R', 'R', 'X', '0'};
 
 /* Module internal variables */
 uint32 serialInterface_baudRate = SERIALINTERFACE_BAUD_RATE;
@@ -62,7 +66,7 @@ void serialInterface_configureRxDMA() {
 
     DMA0PAD = (volatile uint16) &U1RXREG;
 
-    DMA0CNT = 30; // TODO: Arrumar protocolo de tamanho variavel
+    DMA0CNT = (PAYLOAD_SIZE);
 
     /* Enables DMA interruption */
     ConfigIntDMA0(DMA0_INT_ENABLE & DMA0_INT_PRI_5);
@@ -172,14 +176,26 @@ void __attribute__((__interrupt__,no_auto_psv)) _U1RXInterrupt() {
     IFS0bits.U1RXIF = 0;
 }
 
-#define PAYLOAD_SIZE 26
-uint8 DEST_STATION_ADDRESS[5] = {'W', 'R', 'R', '0', '0'};
-
 void __attribute__((__interrupt__,no_auto_psv)) _DMA0Interrupt() {   
     PORTBbits.RB15 = 1; // LED
     
     /* Repeats the command to the radio */
     command_sendPayload(DEST_STATION_ADDRESS, PAYLOAD_SIZE, serialInterface_rxBuffer);
+    
+    /* Debug serial return */
+    unsigned char buffer[128];
+    buffer[0] = '\0';
+    strcat(buffer, "TX: ");
+    
+    int i=0;
+    for(i=0; i<PAYLOAD_SIZE; i++) {
+        unsigned char cat[16];
+        sprintf(cat, "%02X ", serialInterface_rxBuffer[i+1] & 0xFF);
+        
+        strcat(buffer, cat);
+    }
+    strcat(buffer, "\r\n");
+    serialInterface_sendData(strlen(buffer), buffer);
     
     PORTBbits.RB15 = 0; // LED
     

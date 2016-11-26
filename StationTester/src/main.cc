@@ -5,7 +5,7 @@
 #include <StationTester/txstation.hh>
 
 #define SERIALPORT_BAUDRATE 1000000
-#define NUM_PACKETS 1
+#define NUM_PACKETS 1000
 #define DATA_SIZE 4
 
 #include <StationTester/packet.hh>

@@ -60,22 +60,23 @@ void TXStation::worker() {
 
         // Serialize to buffer
         packet.toBuffer(&buffer);
+        buffer.append('\0');
 
-//        std::cout << "Sending: ";
-//        for(int j=0; j<buffer.size(); j++)
-//            printf("%02X ", buffer.at(j) & 0xFF);
-//        std::cout << "\n";
-
-        buffer.clear();
-        buffer = QByteArray::fromStdString("teste de string.");
+        std::cout << "\n[TX] Sending: ";
+        for(int j=0; j<buffer.size(); j++)
+            printf("%02X ", buffer.at(j) & 0xFF);
+        std::cout << "\n";
 
         // Write to serial port
-        port()->write(buffer);
+        int numBytes = port()->write(buffer);
         port()->waitForBytesWritten(-1);
-//        port()->flush();
+        port()->flush();
 
         /// DEBUG
-        std::cout << "[TX] Sent packet #" << packet.id() << " (" << buffer.size() << " bytes)...\n";
+        if(numBytes == buffer.size())
+            std::cout << "[TX] Sent packet #" << packet.id() << " (" << buffer.size()-1 << " bytes)...\n";
+        else
+            std::cout << "[TX] FAILED to send packet #" << packet.id() << " (" << buffer.size()-1 << " bytes)!\n";
 
         // Sleep
         QThread::msleep(1000/_txRate);
