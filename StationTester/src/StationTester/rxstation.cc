@@ -22,6 +22,7 @@
  */
 
 #include "rxstation.hh"
+#include <StationTester/packet.hh>
 #include <iostream>
 
 QString RXStation::name() {
@@ -33,5 +34,14 @@ RXStation::RXStation(QString portName, int baudRate) : Station(portName, baudRat
 }
 
 void RXStation::worker() {
-    std::cout << "RXStation::worker()\n";
+
+    // Read serial port
+    QByteArray buffer = port()->readLine();
+
+    // Deserialize to packet
+    Packet packet;
+    packet.fromBuffer(&buffer);
+
+    /// DEBUG
+    std::cout << "[RX] Received packet #" << packet.id() << "...\n";
 }

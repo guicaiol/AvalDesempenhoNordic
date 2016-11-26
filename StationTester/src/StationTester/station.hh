@@ -37,14 +37,16 @@ public:
     void setDataSize(unsigned dataSize) { _dataSize = dataSize; }
 
 protected:
-    QSerialPort *port() { return &_port; }
+    QSerialPort *port() { return _port; }
     unsigned numPackets() const { return _numPackets; }
     unsigned packetSize() const { return _packetSize; }
     unsigned dataSize() const { return _dataSize; }
 
 private:
     // Serial port
-    QSerialPort _port;
+    QSerialPort *_port;
+    QString _portName;
+    int _baudRate;
 
     // Packet control
     unsigned _numPackets;

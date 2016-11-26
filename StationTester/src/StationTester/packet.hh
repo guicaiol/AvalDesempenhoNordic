@@ -28,6 +28,7 @@
 
 class Packet {
 public:
+    Packet();
     Packet(unsigned id);
 
     // Data management

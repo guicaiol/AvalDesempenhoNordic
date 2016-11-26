@@ -25,13 +25,8 @@
 #include <iostream>
 
 Station::Station(QString portName, int baudRate) {
-    // Configure serial port
-    _port.setPortName(portName);
-    _port.setBaudRate(baudRate);
-    _port.setParity(QSerialPort::NoParity);
-    _port.setStopBits(QSerialPort::OneStop);
-    _port.setFlowControl(QSerialPort::NoFlowControl);
-    _port.setDataBits(QSerialPort::Data8);
+    _portName = portName;
+    _baudRate = baudRate;
 }
 
 void Station::run() {
@@ -42,9 +37,20 @@ void Station::run() {
 }
 
 bool Station::initialization() {
+    // Create serial port
+    _port = new QSerialPort();
+
+    // Configure serial port
+    _port->setPortName(_portName);
+    _port->setBaudRate(_baudRate);
+    _port->setParity(QSerialPort::NoParity);
+    _port->setStopBits(QSerialPort::OneStop);
+    _port->setFlowControl(QSerialPort::NoFlowControl);
+    _port->setDataBits(QSerialPort::Data8);
+
     // Open serial port
-    if(_port.open(QIODevice::ReadWrite) == false) {
-        std::cout << "[ERROR] Failed to start " << name().toStdString() << " on " << _port.portName().toStdString() << ".\n";
+    if(_port->open(QIODevice::ReadWrite) == false) {
+        std::cout << "[ERROR] Failed to start " << name().toStdString() << " on " << _portName.toStdString() << ".\n";
         return false;
     }
 
@@ -53,5 +59,8 @@ bool Station::initialization() {
 
 void Station::finalization() {
     // Close serial port
-    _port.close();
+    _port->close();
+
+    // Delete serial port
+    delete _port;
 }

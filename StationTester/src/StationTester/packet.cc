@@ -23,6 +23,10 @@
 
 #include "packet.hh"
 
+Packet::Packet() {
+    _id = 0;
+}
+
 Packet::Packet(unsigned id) {
     _id = id;
 }
