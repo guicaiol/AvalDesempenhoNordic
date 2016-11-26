@@ -178,10 +178,10 @@ void __attribute__((__interrupt__,no_auto_psv)) _U1RXInterrupt() {
 
 void __attribute__((__interrupt__,no_auto_psv)) _DMA0Interrupt() {   
     //PORTBbits.RB15 = 1; // LED
-    PORTBbits.RB13 = 1; // LED
+    //PORTBbits.RB13 = 1; // LED
     
-    /* Repeats the command to the radio */
-    //TODO: Create define for number of robots
+    /*
+    /* Repeats the command to the radio
     uint8 player[5];
     uint8 command[26];
     uint8 i;
@@ -193,7 +193,7 @@ void __attribute__((__interrupt__,no_auto_psv)) _DMA0Interrupt() {
     }
     command_sendPayload(player, 26, command);
     
-    /* Send feedback to serial port */
+    /* Send feedback to serial port 
     unsigned char buffer[32];
     uint32 nonce = 0;
     memcpy((void*) &nonce, (void*) command, 4);
@@ -201,7 +201,8 @@ void __attribute__((__interrupt__,no_auto_psv)) _DMA0Interrupt() {
     serialInterface_sendData(strlen(buffer), buffer);
     
 //    PORTBbits.RB15 = 0; // LED
-    PORTBbits.RB13 = 0; // LED
+    //PORTBbits.RB13 = 0; // LED
+     * */
     
     /* Clears the interrupt flag */
     IFS0bits.DMA0IF = 0;

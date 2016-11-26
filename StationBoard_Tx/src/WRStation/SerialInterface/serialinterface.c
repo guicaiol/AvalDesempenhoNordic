@@ -66,7 +66,7 @@ void serialInterface_configureRxDMA() {
 
     DMA0PAD = (volatile uint16) &U1RXREG;
 
-    DMA0CNT = (PAYLOAD_SIZE);
+    DMA0CNT = (PAYLOAD_SIZE - 1);
 
     /* Enables DMA interruption */
     ConfigIntDMA0(DMA0_INT_ENABLE & DMA0_INT_PRI_5);
@@ -190,7 +190,7 @@ void __attribute__((__interrupt__,no_auto_psv)) _DMA0Interrupt() {
     int i=0;
     for(i=0; i<PAYLOAD_SIZE; i++) {
         unsigned char cat[16];
-        sprintf(cat, "%02X ", serialInterface_rxBuffer[i+1] & 0xFF);
+        sprintf(cat, "%02X ", serialInterface_rxBuffer[i] & 0xFF);
         
         strcat(buffer, cat);
     }

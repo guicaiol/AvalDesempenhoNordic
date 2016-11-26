@@ -34,14 +34,15 @@ RXStation::RXStation(QString portName, int baudRate) : Station(portName, baudRat
 }
 
 void RXStation::worker() {
+    forever {
+        // Read serial port
+        QByteArray buffer = port()->read(packetSize());
 
-    // Read serial port
-    QByteArray buffer = port()->readLine();
+        // Deserialize to packet
+        Packet packet;
+        packet.fromBuffer(&buffer);
 
-    // Deserialize to packet
-    Packet packet;
-    packet.fromBuffer(&buffer);
-
-    /// DEBUG
-    std::cout << "[RX] Received packet #" << packet.id() << "...\n";
+        /// DEBUG
+        std::cout << "[RX] Received packet #" << packet.id() << "...\n";
+    }
 }

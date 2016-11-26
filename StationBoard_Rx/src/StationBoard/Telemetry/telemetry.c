@@ -88,8 +88,6 @@ void telemetry_sendPayload(uint8* playerAddress, uint8 payloadSize, uint8* paylo
 unsigned char serialBuffer[128];
 unsigned char catBuffer[32];
 
-#define DATA_SIZE 4
-
 void telemetry_taskHandler() {
     /* Variables */
     uint8 nBytes = 0;
@@ -102,20 +100,7 @@ void telemetry_taskHandler() {
         /* Gets data */
         nRF24_getReceivedPayload(TELEMETRY_RADIO_NUMBER, telemetry_buffer, &nBytes);
         
-        /* Get num of data */
-        uint8 nData = nBytes/DATA_SIZE;
-        
-        /* Encode ASCII packet */
-        sprintf(serialBuffer, "");
-        
-        uint8 i = 0;
-        for(i=0; i<nData; i++) {            
-            sprintf(catBuffer, "%d ", &(telemetry_buffer[DATA_SIZE*i]));
-            strcat(serialBuffer, catBuffer);
-        }
-        sprintf(serialBuffer, "%s\r\n", serialBuffer);
-        
         // Send on serial
-        serialInterface_sendData(strlen(serialBuffer), serialBuffer);
+        serialInterface_sendData(strlen(telemetry_buffer), nBytes);
     }
 }
