@@ -8,6 +8,8 @@
 #define NUM_PACKETS 1000
 #define DATA_SIZE 4
 
+#include <StationTester/packet.hh>
+
 int main(int argc, char *argv[]) {
     // Check arguments
     if(argc <= 1) {

@@ -32,6 +32,8 @@ public:
 
     // Data management
     void addData(int data);
+    QList<int> getData() const;
+    int id() const;
 
     // Serialization
     void toBuffer(QByteArray *buffer);
@@ -39,7 +41,7 @@ public:
 
 private:
     // ID
-    const int _id;
+    int _id;
 
     // Data
     QList<int> _data;

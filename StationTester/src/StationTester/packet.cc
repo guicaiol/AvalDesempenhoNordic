@@ -23,18 +23,53 @@
 
 #include "packet.hh"
 
-Packet::Packet(unsigned id) : _id(id) {
-
+Packet::Packet(unsigned id) {
+    _id = id;
 }
 
 void Packet::addData(int data) {
     _data.append(data);
 }
 
-void Packet::toBuffer(QByteArray *buffer) {
+QList<int> Packet::getData() const {
+    return _data;
+}
 
+int Packet::id() const {
+    return _id;
+}
+
+void Packet::toBuffer(QByteArray *buffer) {
+    // Clear
+    buffer->clear();
+
+    // Append id
+    buffer->append(QByteArray((const char *)&_id, sizeof(int)));
+
+    // Append data
+    for(int i=0; i<_data.size(); i++)
+        buffer->append(QByteArray((const char *)&_data[i], sizeof(int)));
 }
 
 void Packet::fromBuffer(QByteArray *buffer) {
+    QByteArray tmp(*buffer);
 
+    // ID
+    QByteArray id = tmp.left(sizeof(int));
+    char *integer = id.data();
+    _id = *((int*) integer);
+    tmp.remove(0, sizeof(int));
+
+    // Data
+    _data.clear();
+
+    int dataNum = tmp.size()/sizeof(int);
+    for(int i=0; i<dataNum; i++) {
+        QByteArray dataArray = tmp.left(sizeof(int));
+        char *integer = dataArray.data();
+        int data = *((int*) integer);
+        tmp.remove(0, sizeof(int));
+
+        _data.append(data);
+    }
 }
