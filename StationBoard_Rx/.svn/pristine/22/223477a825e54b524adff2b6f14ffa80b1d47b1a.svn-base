@@ -1,5 +1,0 @@
-build/default/production/3rdparty/nRF24L01/nrf24l01.o:  \
- 3rdparty/nRF24L01/nrf24l01.c  \
-3rdparty/nRF24L01/nrf24l01.h  \
- 3rdparty/nRF24L01/nrf24l01_pinout.h  \
- 3rdparty/nRF24L01/nrf24l01_registers.h 

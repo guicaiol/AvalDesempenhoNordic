@@ -36,3 +36,15 @@ Makefile*
 # QtCtreator CMake
 CMakeLists.txt.user
 
+# MPLab
+/StationBoard_Tx/nbproject/private/
+/StationBoard_Tx/build/
+/StationBoard_Tx/dist/
+/StationBoard_Tx/debug/
+/StationBoard_Tx/nbproject/Makefile-*
+/StationBoard_Rx/nbproject/private/
+/StationBoard_Rx/build/
+/StationBoard_Rx/dist/
+/StationBoard_Rx/debug/
+/StationBoard_Rx/nbproject/Makefile-*
+Package-default.bash
