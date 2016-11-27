@@ -24,8 +24,6 @@
 #include "repeaterstation.hh"
 #include <iostream>
 
-#define READ_TIMEOUT 100 // ms
-
 RepeaterStation::RepeaterStation(QString txPortName, QString rxPortName, int baudRate) {
     _txPortName = txPortName;
     _rxPortName = rxPortName;
@@ -82,19 +80,13 @@ void RepeaterStation::worker() {
     _txPort->clear();
     _txPort->flush();
 
-    // Create timer
-    Timer timeoutTimer;
-    timeoutTimer.start();
-
     // Loop
-    while(timeoutTimer.timemsec() <= READ_TIMEOUT) {
+    forever {
         // Check ready
         bool ready = _rxPort->waitForReadyRead(0);
 
         // Check valid packet
         if(ready && _rxPort->bytesAvailable() >= _packetSize) {
-            // Reset timer
-            timeoutTimer.start();
 
             // Read RX serial port
             QByteArray buffer = _rxPort->read(_packetSize);
@@ -118,6 +110,3 @@ void RepeaterStation::finalization() {
     delete _rxPort;
     delete _txPort;
 }
-
-
-
