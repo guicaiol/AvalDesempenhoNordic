@@ -37,6 +37,14 @@ bool RepeaterStation::initialization() {
     _rxPort = new QSerialPort();
     _txPort = new QSerialPort();
 
+    // Configure TX port
+    _txPort->setPortName(_txPortName);
+    _txPort->setBaudRate(_baudRate);
+    _txPort->setParity(QSerialPort::NoParity);
+    _txPort->setStopBits(QSerialPort::OneStop);
+    _txPort->setFlowControl(QSerialPort::NoFlowControl);
+    _txPort->setDataBits(QSerialPort::Data8);
+
     // Configure RX port
     _rxPort->setPortName(_rxPortName);
     _rxPort->setBaudRate(_baudRate);
@@ -45,23 +53,15 @@ bool RepeaterStation::initialization() {
     _rxPort->setFlowControl(QSerialPort::NoFlowControl);
     _rxPort->setDataBits(QSerialPort::Data8);
 
-    // Configure TX port
-    _txPort->setPortName(_rxPortName);
-    _txPort->setBaudRate(_baudRate);
-    _txPort->setParity(QSerialPort::NoParity);
-    _txPort->setStopBits(QSerialPort::OneStop);
-    _txPort->setFlowControl(QSerialPort::NoFlowControl);
-    _txPort->setDataBits(QSerialPort::Data8);
+    // Open TX port
+    if(_txPort->open(QIODevice::ReadWrite) == false) {
+        std::cout << "[ERROR] Failed to start TX serial port on " << _txPortName.toStdString() << ".\n";
+        return false;
+    }
 
     // Open RX port
     if(_rxPort->open(QIODevice::ReadWrite) == false) {
         std::cout << "[ERROR] Failed to start RX serial port on " << _rxPortName.toStdString() << ".\n";
-        return false;
-    }
-
-    // Open TX port
-    if(_txPort->open(QIODevice::ReadWrite) == false) {
-        std::cout << "[ERROR] Failed to start TX serial port on " << _txPortName.toStdString() << ".\n";
         return false;
     }
 

@@ -26,7 +26,11 @@
 #include <iostream>
 #include <StationTester/rxstation.hh>
 #include <StationTester/txstation.hh>
+#include <StationTester/repeaterstation.hh>
 #include <StationTester/timer.hh>
+
+#define ST_TYPE_ANALYSIS 0
+#define ST_TYPE_REPEATER 1
 
 #define SERIALPORT_BAUDRATE 1000000
 #define NUM_PACKETS 1000
@@ -36,80 +40,101 @@
 
 int main(int argc, char *argv[]) {
     // Check arguments
-    if(argc <= 1) {
-        std::cout << "Usage: ./StationTester txPortName rxPortName txRate pktSize\n";
+    if(argc <= 5) {
+        std::cout << "Usage: ./StationTester stType txPortName rxPortName txRate pktSize\n";
         return EXIT_FAILURE;
     }
 
     // Parse arguments
-    const QString txPortName(argv[1]);
-    const QString rxPortName(argv[2]);
-    const int txRate = atoi(argv[3]);
-    const int pktSize = atoi(argv[4]);
+    const int stType = atoi(argv[1]);
+    const QString txPortName(argv[2]);
+    const QString rxPortName(argv[3]);
+    const int txRate = atoi(argv[4]);
+    const int pktSize = atoi(argv[5]);
 
     std::cout << "CONFIGURATION:\n";
     std::cout << "TX serial port: " << txPortName.toStdString() << "\n";
     std::cout << "RX serial port: " << rxPortName.toStdString() << "\n";
-    std::cout << "TX rate: " << txRate << " Hz\n";
-    std::cout << "PKT size: " << pktSize << " bytes\n";
 
-    // Generate random packets
-    QMap<unsigned,Packet> packets;
-    srand(time(NULL));
-    for(unsigned i=0; i<NUM_PACKETS; i++) {
-        Packet packet(i+1);
+    // SWITCH STATION TYPE
+    if(stType==ST_TYPE_ANALYSIS) {
 
-        // Generate random data
-        int numData = (int)(pktSize/DATA_SIZE) - 1;
-        for(int j=0; j<numData; j++) {
-            int data = (rand()%INT_MAX);
-            packet.addData(data);
+        std::cout << "TX rate: " << txRate << " Hz\n";
+        std::cout << "PKT size: " << pktSize << " bytes\n";
+
+        // Generate random packets
+        QMap<unsigned,Packet> packets;
+        srand(time(NULL));
+        for(unsigned i=0; i<NUM_PACKETS; i++) {
+            Packet packet(i+1);
+
+            // Generate random data
+            int numData = (int)(pktSize/DATA_SIZE) - 1;
+            for(int j=0; j<numData; j++) {
+                int data = (rand()%INT_MAX);
+                packet.addData(data);
+            }
+
+            // Append packet
+            packets.insert(i+1, packet);
         }
 
-        // Append packet
-        packets.insert(i+1, packet);
+        // Create timer to calculate response time
+        Timer timer;
+
+        // Create stations
+        TXStation tx(txPortName, SERIALPORT_BAUDRATE);
+        tx.setNumPackets(NUM_PACKETS);
+        tx.setPacketSize(pktSize);
+        tx.setDataSize(DATA_SIZE);
+        tx.setTXrate(txRate);
+        tx.setPackets(&packets);
+        tx.setTimer(&timer);
+
+        RXStation rx(rxPortName, SERIALPORT_BAUDRATE);
+        rx.setNumPackets(NUM_PACKETS);
+        rx.setPacketSize(pktSize);
+        rx.setDataSize(DATA_SIZE);
+        rx.setPackets(&packets);
+        rx.setTimer(&timer);
+
+        // Start stations
+        std::cout << "\nRunning TX and RX...\n";
+        timer.start();
+        tx.start(QThread::TimeCriticalPriority);
+        rx.start(QThread::TimeCriticalPriority);
+
+        // Wait stations to finish jobs
+        tx.wait();
+        rx.wait();
+
+        // End
+        float responseRate = ((float) rx.packetsReceived()/tx.packetsSent())*100;
+        float hitRate = ((float) rx.packetsCorrect()/rx.packetsReceived())*100;
+
+        std::cout << "Finished TX and RX!\n";
+
+        std::cout << "\nRESULTS: \n";
+        std::cout << "- Packets sent: " << tx.packetsSent() << "\n";
+        std::cout << "- Packets received: " << rx.packetsReceived() << " (" << responseRate << " %)\n";
+        std::cout << "- Packets correct: " << rx.packetsCorrect() << " (" << hitRate << " %)\n";
+        std::cout << "- Mean response time: " << rx.meanResponseTime() << " ms\n";
+
+    } else if(stType==ST_TYPE_REPEATER) {
+
+        // Create station
+        RepeaterStation rStation(txPortName, rxPortName, SERIALPORT_BAUDRATE);
+        rStation.setPacketSize(pktSize);
+
+        // Start repeater
+        std::cout << "\nRunning Repeater Station...\n";
+        rStation.start(QThread::TimeCriticalPriority);
+
+        // Wait station to finish job
+        rStation.wait();
+
+        std::cout << "Finished Repeater Station!\n";
     }
-
-    // Create timer to calculate response time
-    Timer timer;
-
-    // Create stations
-    TXStation tx(txPortName, SERIALPORT_BAUDRATE);
-    tx.setNumPackets(NUM_PACKETS);
-    tx.setPacketSize(pktSize);
-    tx.setDataSize(DATA_SIZE);
-    tx.setTXrate(txRate);
-    tx.setPackets(&packets);
-    tx.setTimer(&timer);
-
-    RXStation rx(rxPortName, SERIALPORT_BAUDRATE);
-    rx.setNumPackets(NUM_PACKETS);
-    rx.setPacketSize(pktSize);
-    rx.setDataSize(DATA_SIZE);
-    rx.setPackets(&packets);
-    rx.setTimer(&timer);
-
-    // Start stations
-    std::cout << "\nRunning TX and RX...\n";
-    timer.start();
-    tx.start(QThread::TimeCriticalPriority);
-    rx.start(QThread::TimeCriticalPriority);
-
-    // Wait stations to finish jobs
-    tx.wait();
-    rx.wait();
-
-    // End
-    float responseRate = ((float) rx.packetsReceived()/tx.packetsSent())*100;
-    float hitRate = ((float) rx.packetsCorrect()/rx.packetsReceived())*100;
-
-    std::cout << "Finished TX and RX!\n";
-
-    std::cout << "\nRESULTS: \n";
-    std::cout << "- Packets sent: " << tx.packetsSent() << "\n";
-    std::cout << "- Packets received: " << rx.packetsReceived() << " (" << responseRate << " %)\n";
-    std::cout << "- Packets correct: " << rx.packetsCorrect() << " (" << hitRate << " %)\n";
-    std::cout << "- Mean response time: " << rx.meanResponseTime() << " ms\n";
 
     return 0;
 }
