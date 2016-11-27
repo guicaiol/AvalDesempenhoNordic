@@ -30,56 +30,36 @@ QString TXStation::name() {
 }
 
 TXStation::TXStation(QString portName, int baudRate) : Station(portName, baudRate) {
-
+    _packetsSent = 0;
 }
 
 void TXStation::worker() {
-    // Creates the package data list
-    QList<Packet> packetList;
-
-    // Packet generation
-    srand(time(NULL));
-    for(unsigned i=0; i<numPackets(); i++) {
-        Packet packet(i+1);
-
-        // Generate random data
-        int numData = (int)(packetSize()/dataSize()) - 1;
-        for(int j=0; j<numData; j++) {
-            int data = (rand()%INT_MAX);
-            packet.addData(data);
-        }
-
-        // Append packet
-        packetList.append(packet);
-    }
+    QList<Packet> packetsList = packets().values();
 
     // Sending
     QByteArray buffer;
     for(unsigned i=0; i<numPackets(); i++) {
-        Packet packet = packetList.at(i);
+        Packet packet = packetsList.at(i);
 
         // Serialize to buffer
         packet.toBuffer(&buffer);
         buffer.append('\0');
 
-        /// DEBUG
-//        std::cout << "\n[TX] Sending: ";
-//        for(int j=0; j<buffer.size(); j++)
-//            printf("%02X ", buffer.at(j) & 0xFF);
-//        std::cout << "\n";
-
         // Write to serial port
-        int numBytes = port()->write(buffer);
+        port()->write(buffer);
         port()->waitForBytesWritten(-1);
         port()->flush();
 
+        // Inc counter
+        _packetsSent++;
+
         /// DEBUG
-        if(numBytes == buffer.size())
-            std::cout << "[TX] Sent packet #" << packet.id() << " (" << buffer.size()-1 << " bytes)...\n";
-        else
-            std::cout << "[TX] FAILED to send packet #" << packet.id() << " (" << buffer.size()-1 << " bytes)!\n";
+//        if(numBytes == buffer.size())
+//            std::cout << "[TX] Sent packet #" << packet.id() << " (" << buffer.size()-1 << " bytes)...\n";
+//        else
+//            std::cout << "[TX] FAILED to send packet #" << packet.id() << " (" << buffer.size()-1 << " bytes)!\n";
 
         // Sleep
-        QThread::msleep(1000/_txRate);
+        QThread::usleep(1E6f/_txRate);
     }
 }

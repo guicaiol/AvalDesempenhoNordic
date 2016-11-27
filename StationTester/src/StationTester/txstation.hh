@@ -33,6 +33,9 @@ public:
     // TX rate
     void setTXrate(unsigned txRate) { _txRate = txRate; }
 
+    // Info
+    unsigned packetsSent() const { return _packetsSent; }
+
 private:
     // Station abstract implementation run implementation
     void worker();
@@ -40,6 +43,9 @@ private:
 
     // Packet control
     unsigned _txRate;
+
+    // Internal
+    unsigned _packetsSent;
 };
 
 #endif // TXSTATION_HH

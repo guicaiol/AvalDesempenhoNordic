@@ -26,16 +26,14 @@
 #include <StationTester/timer.hh>
 #include <iostream>
 
-#define READYREAD_WAIT 5 // ms
-#define READ_TIMEOUT 100 // ms
-
+#define READ_TIMEOUT 200 // ms
 
 QString RXStation::name() {
     return "RXStation";
 }
 
 RXStation::RXStation(QString portName, int baudRate) : Station(portName, baudRate) {
-
+    _packetsReceived = 0;
 }
 
 void RXStation::worker() {
@@ -50,7 +48,7 @@ void RXStation::worker() {
     // Loop
     while(timer.timemsec() <= READ_TIMEOUT) {
         // Wait for
-        bool ready = port()->waitForReadyRead(READYREAD_WAIT);
+        bool ready = port()->waitForReadyRead(0);
 
         // Check valid packet
         if(ready && port()->bytesAvailable() >= packetSize()) {
@@ -68,7 +66,10 @@ void RXStation::worker() {
             /// TODO
 
             /// DEBUG
-            std::cout << "[RX] Received packet #" << packet.id() << " (" << buffer.size() << " bytes).\n\n";
+//            std::cout << "[RX] Received packet #" << packet.id() << " (" << buffer.size() << " bytes).\n\n";
+
+            // Inc counter
+            _packetsReceived++;
         }
 
         // Update timer

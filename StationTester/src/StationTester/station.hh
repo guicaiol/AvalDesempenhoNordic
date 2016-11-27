@@ -24,8 +24,10 @@
 #ifndef STATION_HH
 #define STATION_HH
 
+#include <QMap>
 #include <QThread>
 #include <QSerialPort>
+#include <StationTester/packet.hh>
 
 class Station : public QThread {
 public:
@@ -35,12 +37,14 @@ public:
     void setNumPackets(unsigned numPackets) { _numPackets = numPackets; }
     void setPacketSize(unsigned packetSize) { _packetSize = packetSize; }
     void setDataSize(unsigned dataSize) { _dataSize = dataSize; }
+    void setPackets(QMap<unsigned,Packet> packets) { _packets = packets; }
 
 protected:
     QSerialPort *port() { return _port; }
     unsigned numPackets() const { return _numPackets; }
     unsigned packetSize() const { return _packetSize; }
     unsigned dataSize() const { return _dataSize; }
+    QMap<unsigned,Packet> packets() const { return _packets; }
 
 private:
     // Serial port
@@ -52,6 +56,7 @@ private:
     unsigned _numPackets;
     unsigned _packetSize;
     unsigned _dataSize;
+    QMap<unsigned,Packet> _packets;
 
     // Thread run implementation
     void run();

@@ -30,10 +30,15 @@ class RXStation : public Station {
 public:
     RXStation(QString portName, int baudRate);
 
+    unsigned packetsReceived() const { return _packetsReceived; }
+
 private:
     // Station abstract implementation run implementation
     void worker();
     QString name();
+
+    // Internal
+    unsigned _packetsReceived;
 };
 
 #endif // RXSTATION_HH
