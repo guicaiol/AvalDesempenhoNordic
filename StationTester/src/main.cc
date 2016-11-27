@@ -39,6 +39,8 @@
 #include <StationTester/packet.hh>
 
 int main(int argc, char *argv[]) {
+    QCoreApplication app(argc, argv);
+
     // Check arguments
     if(argc <= 5) {
         std::cout << "Usage: ./StationTester stType txPortName rxPortName txRate pktSize\n";
