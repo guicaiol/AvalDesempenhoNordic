@@ -23,7 +23,12 @@
 
 #include "rxstation.hh"
 #include <StationTester/packet.hh>
+#include <StationTester/timer.hh>
 #include <iostream>
+
+#define READYREAD_WAIT 5 // ms
+#define READ_TIMEOUT 100 // ms
+
 
 QString RXStation::name() {
     return "RXStation";
@@ -34,15 +39,40 @@ RXStation::RXStation(QString portName, int baudRate) : Station(portName, baudRat
 }
 
 void RXStation::worker() {
-    forever {
-        // Read serial port
-        QByteArray buffer = port()->read(packetSize());
+    // Set port with buffer size enough for all packets
+    port()->setReadBufferSize(numPackets()*packetSize());
 
-        // Deserialize to packet
-        Packet packet;
-        packet.fromBuffer(&buffer);
+    // Create timer
+    Timer timer;
+    timer.start();
+    timer.stop();
 
-        /// DEBUG
-        std::cout << "[RX] Received packet #" << packet.id() << "...\n";
+    // Loop
+    while(timer.timemsec() <= READ_TIMEOUT) {
+        // Wait for
+        bool ready = port()->waitForReadyRead(READYREAD_WAIT);
+
+        // Check valid packet
+        if(ready && port()->bytesAvailable() >= packetSize()) {
+            // Reset timer
+            timer.start();
+
+            // Read serial port
+            QByteArray buffer = port()->read(packetSize());
+
+            // Deserialize to packet
+            Packet packet;
+            packet.fromBuffer(&buffer);
+
+            // Analyze packet
+            /// TODO
+
+            /// DEBUG
+            std::cout << "[RX] Received packet #" << packet.id() << " (" << buffer.size() << " bytes).\n\n";
+        }
+
+        // Update timer
+        timer.stop();
     }
+
 }

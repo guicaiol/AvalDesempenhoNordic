@@ -101,6 +101,21 @@ void telemetry_taskHandler() {
         nRF24_getReceivedPayload(TELEMETRY_RADIO_NUMBER, telemetry_buffer, &nBytes);
         
         // Send on serial
-        serialInterface_sendData(strlen(telemetry_buffer), nBytes);
+        serialInterface_sendData(nBytes, telemetry_buffer);
+        
+        /* DEBUG: Send on serial */
+        //unsigned char buffer[128];
+        //buffer[0] = '\0';
+        //strcat(buffer, "RX: ");
+
+        //int i=0;
+        //for(i=0; i<nBytes; i++) {
+            //unsigned char cat[16];
+            //sprintf(cat, "%02X ", telemetry_buffer[i] & 0xFF);
+
+            //strcat(buffer, cat);
+        //}
+        //strcat(buffer, "\r\n");
+        //serialInterface_sendData(strlen(buffer), buffer);
     }
 }

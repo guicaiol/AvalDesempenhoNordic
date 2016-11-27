@@ -23,8 +23,8 @@
 
 #define TELEMETRY_ADDR_SIZE        5                   /* Number of bytes of player address */
 #define TELEMETRY_ADDR_PREFIX_SIZE 3                   /* Number of bytes of player address prefix */
-#define TELEMETRY_ADDR_BASE        'W','R','R','0','0' /* Address base */
+#define TELEMETRY_ADDR_BASE        'W','R','R','X','1' /* Address base */
 
-#define TELEMETRY_PROTOCOL_SIZE 32 /* Number of bytes of the telemetry protocol */
+#define TELEMETRY_PROTOCOL_SIZE 28 /* Number of bytes of the telemetry protocol */
 
 #endif
