@@ -33,7 +33,7 @@
 #define ST_TYPE_REPEATER 1
 
 #define SERIALPORT_BAUDRATE 1000000
-#define NUM_PACKETS 1000
+#define NUM_PACKETS 1500
 #define DATA_SIZE 4
 
 #include <StationTester/packet.hh>
