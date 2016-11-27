@@ -55,7 +55,8 @@ SOURCES += \
     src/StationTester/station.cc \
     src/StationTester/txstation.cc \
     src/StationTester/packet.cc \
-    src/StationTester/timer.cc
+    src/StationTester/timer.cc \
+    src/StationTester/repeaterstation.cc
 
 # Header files
 HEADERS += \
@@ -63,7 +64,8 @@ HEADERS += \
     src/StationTester/station.hh \
     src/StationTester/txstation.hh \
     src/StationTester/packet.hh \
-    src/StationTester/timer.hh
+    src/StationTester/timer.hh \
+    src/StationTester/repeaterstation.hh
 
 # Other files
 DISTFILES += \

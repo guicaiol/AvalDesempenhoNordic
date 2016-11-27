@@ -24,18 +24,22 @@
 #ifndef TIMER_HH
 #define TIMER_HH
 
-#include <ctime>
+#include <QMutex>
+#include <time.h>
 
 class Timer {
 private:
     timespec _time1, _time2;
+    mutable QMutex _mutex;
 
+    // Internal control
+    void _stop();
+    double _timensec();
 public:
     Timer();
 
     // Timer control
     void start();
-    void stop();
 
     // Timer getters
     double timesec();

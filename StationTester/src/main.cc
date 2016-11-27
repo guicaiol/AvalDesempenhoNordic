@@ -1,11 +1,35 @@
+/*
+ * SSC0643 - Avaliação de Desempenho de Sistemas Computacionais
+ * University of Sao Paulo (USP) at Sao Carlos
+ * Authors:
+ * Guilherme Caixeta de Oliveira
+ * Lucas dos Santos Luchiari
+ *
+ * This file is part of StationTester project.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include <QCoreApplication>
 #include <QMap>
 #include <iostream>
 #include <StationTester/rxstation.hh>
 #include <StationTester/txstation.hh>
+#include <StationTester/timer.hh>
 
 #define SERIALPORT_BAUDRATE 1000000
-#define NUM_PACKETS 3000
+#define NUM_PACKETS 1000
 #define DATA_SIZE 4
 
 #include <StationTester/packet.hh>
@@ -43,8 +67,11 @@ int main(int argc, char *argv[]) {
         }
 
         // Append packet
-        packets.insert(i, packet);
+        packets.insert(i+1, packet);
     }
+
+    // Create timer to calculate response time
+    Timer timer;
 
     // Create stations
     TXStation tx(txPortName, SERIALPORT_BAUDRATE);
@@ -52,27 +79,37 @@ int main(int argc, char *argv[]) {
     tx.setPacketSize(pktSize);
     tx.setDataSize(DATA_SIZE);
     tx.setTXrate(txRate);
-    tx.setPackets(packets);
+    tx.setPackets(&packets);
+    tx.setTimer(&timer);
 
     RXStation rx(rxPortName, SERIALPORT_BAUDRATE);
     rx.setNumPackets(NUM_PACKETS);
     rx.setPacketSize(pktSize);
     rx.setDataSize(DATA_SIZE);
-    rx.setPackets(packets);
+    rx.setPackets(&packets);
+    rx.setTimer(&timer);
 
     // Start stations
     std::cout << "\nRunning TX and RX...\n";
-    tx.start();
-    rx.start();
+    timer.start();
+    tx.start(QThread::TimeCriticalPriority);
+    rx.start(QThread::TimeCriticalPriority);
 
     // Wait stations to finish jobs
     tx.wait();
     rx.wait();
 
     // End
+    float responseRate = ((float) rx.packetsReceived()/tx.packetsSent())*100;
+    float hitRate = ((float) rx.packetsCorrect()/rx.packetsReceived())*100;
+
     std::cout << "Finished TX and RX!\n";
-    std::cout << "Packets sent: " << tx.packetsSent() << "\n";
-    std::cout << "Packets received: " << rx.packetsReceived() << "\n";
+
+    std::cout << "\nRESULTS: \n";
+    std::cout << "- Packets sent: " << tx.packetsSent() << "\n";
+    std::cout << "- Packets received: " << rx.packetsReceived() << " (" << responseRate << " %)\n";
+    std::cout << "- Packets correct: " << rx.packetsCorrect() << " (" << hitRate << " %)\n";
+    std::cout << "- Mean response time: " << rx.meanResponseTime() << " ms\n";
 
     return 0;
 }

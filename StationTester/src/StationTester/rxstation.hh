@@ -30,7 +30,10 @@ class RXStation : public Station {
 public:
     RXStation(QString portName, int baudRate);
 
+    // Info
     unsigned packetsReceived() const { return _packetsReceived; }
+    unsigned packetsCorrect() const { return _packetsCorrect; }
+    double meanResponseTime() const { return _meanResponseTime; }
 
 private:
     // Station abstract implementation run implementation
@@ -39,6 +42,9 @@ private:
 
     // Internal
     unsigned _packetsReceived;
+    unsigned _packetsCorrect;
+    double _meanResponseTime;
+    QList<double> _responseTimes;
 };
 
 #endif // RXSTATION_HH

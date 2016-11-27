@@ -26,7 +26,7 @@
 #include <StationTester/timer.hh>
 #include <iostream>
 
-#define READ_TIMEOUT 200 // ms
+#define READ_TIMEOUT 100 // ms
 
 QString RXStation::name() {
     return "RXStation";
@@ -34,46 +34,82 @@ QString RXStation::name() {
 
 RXStation::RXStation(QString portName, int baudRate) : Station(portName, baudRate) {
     _packetsReceived = 0;
+    _packetsCorrect = 0;
+    _meanResponseTime = 0;
 }
 
 void RXStation::worker() {
+    // Clear
+    port()->clear();
+    port()->flush();
+
     // Set port with buffer size enough for all packets
     port()->setReadBufferSize(numPackets()*packetSize());
 
     // Create timer
-    Timer timer;
-    timer.start();
-    timer.stop();
+    Timer timeoutTimer;
+    timeoutTimer.start();
 
     // Loop
-    while(timer.timemsec() <= READ_TIMEOUT) {
-        // Wait for
+    while(timeoutTimer.timemsec() <= READ_TIMEOUT) {
+        // Check ready
         bool ready = port()->waitForReadyRead(0);
 
         // Check valid packet
         if(ready && port()->bytesAvailable() >= packetSize()) {
             // Reset timer
-            timer.start();
+            timeoutTimer.start();
 
             // Read serial port
             QByteArray buffer = port()->read(packetSize());
 
             // Deserialize to packet
-            Packet packet;
-            packet.fromBuffer(&buffer);
+            Packet recvdPacket;
+            recvdPacket.fromBuffer(&buffer);
 
-            // Analyze packet
-            /// TODO
+            // Save RX time
+            double rxTimestamp = timer()->timemsec();
 
             /// DEBUG
-//            std::cout << "[RX] Received packet #" << packet.id() << " (" << buffer.size() << " bytes).\n\n";
+//            std::cout << "[RX] Received packet #" << recvdPacket.id() << " (" << buffer.size() << " bytes).\n\n";
 
-            // Inc counter
-            _packetsReceived++;
+            // Analyze packet
+            if(packets()->contains(recvdPacket.id())) {
+                _packetsReceived++;
+
+                // Get source packet
+                Packet source = packets()->value(recvdPacket.id());
+
+                // Calc response time
+                const double dt = rxTimestamp - source.timestamp();
+                _responseTimes.append(dt);
+
+                // Check correct
+                if(recvdPacket.equals(source))
+                    _packetsCorrect++;
+                else {
+                    /// DEBUG
+//                    std::cout << "[RX] Received wrong packet...\n";
+//                    std::cout << "[RX] Source (#" << source.id() << "): ";
+//                    for(int i=0; i<source.getData().size(); i++)
+//                        printf("%d ", source.getData().at(i));
+//                    printf("\n");
+
+//                    std::cout << "[RX] Received (#" << recvdPacket.id() << "): ";
+//                    for(int i=0; i<recvdPacket.getData().size(); i++)
+//                        printf("%d ", recvdPacket.getData().at(i));
+//                    printf("\n\n");
+
+                }
+            }
+
         }
 
-        // Update timer
-        timer.stop();
     }
 
+    // Calc mean response time
+    double sum = 0;
+    for(int i=0; i<_responseTimes.size(); i++)
+        sum += _responseTimes.at(i);
+    _meanResponseTime = sum/_responseTimes.size();
 }

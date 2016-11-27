@@ -22,6 +22,7 @@
  */
 
 #include "timer.hh"
+#include <QMutexLocker>
 
 Timer::Timer() {
     clock_gettime(CLOCK_REALTIME, &_time1);
@@ -29,25 +30,35 @@ Timer::Timer() {
 }
 
 void Timer::start() {
+    QMutexLocker locker(&_mutex);
     clock_gettime(CLOCK_REALTIME, &_time1);
 }
 
-void Timer::stop() {
+void Timer::_stop() {
     clock_gettime(CLOCK_REALTIME, &_time2);
 }
 
-double Timer::timesec() {
-    return timensec()/1E9;
-}
-
-double Timer::timemsec()   {
-    return timensec()/1E6;
-}
-
-double Timer::timeusec()   {
-    return timensec()/1E3;
-}
-
-double Timer::timensec()   {
+double Timer::_timensec() {
+    _stop();
     return (_time2.tv_sec*1E9 + _time2.tv_nsec) - (_time1.tv_sec*1E9 + _time1.tv_nsec);
+}
+
+double Timer::timesec() {
+    QMutexLocker locker(&_mutex);
+    return _timensec()/1E9;
+}
+
+double Timer::timemsec() {
+    QMutexLocker locker(&_mutex);
+    return _timensec()/1E6;
+}
+
+double Timer::timeusec() {
+    QMutexLocker locker(&_mutex);
+    return _timensec()/1E3;
+}
+
+double Timer::timensec() {
+    QMutexLocker locker(&_mutex);
+    return _timensec();
 }

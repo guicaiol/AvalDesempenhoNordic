@@ -43,6 +43,14 @@ int Packet::id() const {
     return _id;
 }
 
+double Packet::timestamp() const {
+    return _timestamp;
+}
+
+void Packet::setTimestamp(double timestamp) {
+    _timestamp = timestamp;
+}
+
 void Packet::toBuffer(QByteArray *buffer) {
     // Clear
     buffer->clear();
@@ -75,5 +83,24 @@ void Packet::fromBuffer(QByteArray *buffer) {
         tmp.remove(0, sizeof(int));
 
         _data.append(data);
+    }
+}
+
+bool Packet::equals(const Packet &packet) {
+    // Check data size
+    if(packet.getData().size() != this->getData().size()) {
+        return false;
+
+    } else {
+        QList<int> thisData = this->getData();
+        QList<int> otherData = packet.getData();
+
+        // Check data values
+        for(int i=0; i<thisData.size(); i++) {
+            if(thisData.at(i)!=otherData.at(i))
+                return false;
+        }
+
+        return true;
     }
 }

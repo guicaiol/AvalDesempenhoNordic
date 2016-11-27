@@ -21,41 +21,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PACKET_HH
-#define PACKET_HH
+#ifndef REPEATERSTATION_HH
+#define REPEATERSTATION_HH
 
-#include <QList>
+#include <QThread>
+#include <StationTester/rxstation.hh>
+#include <StationTester/txstation.hh>
 
-class Packet {
+class RepeaterStation : public QThread {
 public:
-    Packet();
-    Packet(unsigned id);
+    RepeaterStation(QString txPortName, QString rxPortName, int baudRate);
 
-    // Data management
-    void addData(int data);
-    QList<int> getData() const;
-    int id() const;
-    double timestamp() const;
-
-    // Timestamp
-    void setTimestamp(double timestamp);
-
-    // Serialization
-    void toBuffer(QByteArray *buffer);
-    void fromBuffer(QByteArray *buffer);
-
-    // Compare
-    bool equals(const Packet &packet);
+    // Packet control
+    void setPacketSize(unsigned packetSize) { _packetSize = packetSize; }
 
 private:
-    // ID
-    int _id;
+    // Serial ports
+    QSerialPort *_rxPort;
+    QSerialPort *_txPort;
+    QString _rxPortName;
+    QString _txPortName;
+    int _baudRate;
 
-    // Data
-    QList<int> _data;
+    // Thread implementation
+    void run();
 
-    // Timestamp (TX)
-    double _timestamp; // ms
+    // Packet control
+    unsigned _packetSize;
+
+    // Internal methods
+    bool initialization();
+    void worker();
+    void finalization();
 };
 
-#endif // PACKET_HH
+#endif // REPEATERSTATION_HH

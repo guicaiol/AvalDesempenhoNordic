@@ -34,12 +34,20 @@ TXStation::TXStation(QString portName, int baudRate) : Station(portName, baudRat
 }
 
 void TXStation::worker() {
-    QList<Packet> packetsList = packets().values();
+    // Clear
+    port()->clear();
+    port()->flush();
+
+    QList<Packet> packetsList = packets()->values();
 
     // Sending
     QByteArray buffer;
     for(unsigned i=0; i<numPackets(); i++) {
         Packet packet = packetsList.at(i);
+
+        // Update sending time on packet
+        packet.setTimestamp(timer()->timemsec());
+        packets()->insert(packet.id(), packet);
 
         // Serialize to buffer
         packet.toBuffer(&buffer);
