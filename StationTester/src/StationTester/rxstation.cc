@@ -71,7 +71,7 @@ void RXStation::worker() {
             double rxTimestamp = timer()->timemsec();
 
             /// DEBUG
-//            std::cout << "[RX] Received packet #" << recvdPacket.id() << " (" << buffer.size() << " bytes).\n\n";
+            std::cout << "[RX] Received packet #" << recvdPacket.id() << " (" << buffer.size() << " bytes).\n\n";
 
             // Analyze packet
             if(packets()->contains(recvdPacket.id())) {
