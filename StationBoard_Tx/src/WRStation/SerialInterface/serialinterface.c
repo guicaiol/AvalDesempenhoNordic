@@ -22,7 +22,7 @@
 
 
 #define PAYLOAD_SIZE 28
-uint8 DEST_STATION_ADDRESS[5] = {'W', 'R', 'R', 'X', '1'};
+uint8 DEST_STATION_ADDRESS[5] = {'W', 'R', 'R', 'X', '0'};
 
 /* Module internal variables */
 uint32 serialInterface_baudRate = SERIALINTERFACE_BAUD_RATE;

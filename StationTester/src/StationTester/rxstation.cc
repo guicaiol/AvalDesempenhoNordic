@@ -71,7 +71,7 @@ void RXStation::worker() {
             double rxTimestamp = timer()->timemsec();
 
             /// DEBUG
-            std::cout << "[RX] Received packet #" << recvdPacket.id() << " (" << buffer.size() << " bytes).\n\n";
+//            std::cout << "[RX] Received packet #" << recvdPacket.id() << " (" << buffer.size() << " bytes).\n\n";
 
             // Analyze packet
             if(packets()->contains(recvdPacket.id())) {
@@ -89,16 +89,16 @@ void RXStation::worker() {
                     _packetsCorrect++;
                 else {
                     /// DEBUG
-//                    std::cout << "[RX] Received wrong packet...\n";
-//                    std::cout << "[RX] Source (#" << source.id() << "): ";
-//                    for(int i=0; i<source.getData().size(); i++)
-//                        printf("%d ", source.getData().at(i));
-//                    printf("\n");
+                    std::cout << "[RX] Received wrong packet...\n";
+                    std::cout << "[RX] Source (#" << source.id() << "): ";
+                    for(int i=0; i<source.getData().size(); i++)
+                        printf("%d ", source.getData().at(i));
+                    printf("\n");
 
-//                    std::cout << "[RX] Received (#" << recvdPacket.id() << "): ";
-//                    for(int i=0; i<recvdPacket.getData().size(); i++)
-//                        printf("%d ", recvdPacket.getData().at(i));
-//                    printf("\n\n");
+                    std::cout << "[RX] Received (#" << recvdPacket.id() << "): ";
+                    for(int i=0; i<recvdPacket.getData().size(); i++)
+                        printf("%d ", recvdPacket.getData().at(i));
+                    printf("\n\n");
 
                 }
             }
