@@ -90,17 +90,19 @@ void RepeaterStation::worker() {
 
             // Read RX serial port
             QByteArray buffer = _rxPort->read(_packetSize);
-            buffer.append('\0');
 
-            printf("\nRX: ");
-            for(int i=0; i<buffer.size(); i++)
-                printf("%02X ", buffer[i] & 0xFF);
-            printf("\n");
+
+//            printf("\nRX: ");
+//            for(int i=0; i<buffer.size(); i++)
+//                printf("%02X ", buffer[i] & 0xFF);
+//            printf("\n");
 
             /// DEBUG
-            Packet recvdPacket;
-            recvdPacket.fromBuffer(&buffer);
-            std::cout << "[RX] Received packet #" << recvdPacket.id() << " (" << buffer.size() << " bytes).\n";
+//            Packet recvdPacket;
+//            recvdPacket.fromBuffer(&buffer);
+//            std::cout << "[RX] Received packet #" << recvdPacket.id() << " (" << buffer.size() << " bytes).\n";
+
+//            buffer.append('\0');
 
             // Write to TX serial port
             _txPort->write(buffer);
